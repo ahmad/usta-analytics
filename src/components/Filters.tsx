@@ -37,7 +37,7 @@ export interface FilterState {
 }
 
 const RATINGS = ['2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5'];
-const GENDERS = ['Male', 'Female', 'Mixed'];
+const GENDERS = ['Male', 'Female'];
 
 export default function Filters({ onFiltersChange }: FiltersProps) {
   const [sections, setSections] = useState<Section[]>([]);
@@ -237,21 +237,37 @@ export default function Filters({ onFiltersChange }: FiltersProps) {
             <div className="flex flex-wrap gap-2">
               {Object.entries(filters)
                 .filter(([, value]) => value !== '')
-                .map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 border border-blue-200"
-                  >
-                    <span className="capitalize mr-1">{key}:</span>
-                    <span className="font-medium">{value}</span>
-                    <button
-                      onClick={() => handleFilterChange(key as keyof FilterState, '')}
-                      className="ml-2 text-blue-600 hover:text-blue-800"
+                .map(([key, value]) => {
+                  let displayValue = value;
+                  
+                  // Show friendly names instead of IDs
+                  if (key === 'section' && value) {
+                    const selectedSection = sections.find(s => s.section_id === value);
+                    displayValue = selectedSection?.section_name || value;
+                  } else if (key === 'district' && value) {
+                    const selectedDistrict = districts.find(d => d.district_id === value);
+                    displayValue = selectedDistrict?.district_name || value;
+                  } else if (key === 'area' && value) {
+                    const selectedArea = areas.find(a => a.area_id === value);
+                    displayValue = selectedArea?.area_name || value;
+                  }
+                  
+                  return (
+                    <div
+                      key={key}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800 border border-blue-200"
                     >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
+                      <span className="capitalize mr-1">{key}:</span>
+                      <span className="font-medium">{displayValue}</span>
+                      <button
+                        onClick={() => handleFilterChange(key as keyof FilterState, '')}
+                        className="ml-2 text-blue-600 hover:text-blue-800"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         )}

@@ -38,7 +38,7 @@ interface AnalyticsDashboardProps {
 }
 
 export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps) {
-  const { data, isLoading, error, isError } = useStats();
+  const { data, isLoading, error, isError } = useStats(filters);
   const hasActiveFilters = Object.values(filters).some(value => value !== '');
 
   if (isLoading) {
@@ -56,6 +56,24 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
           <div className="text-red-600 text-lg font-semibold">
             {error?.message || 'Failed to load analytics data'}
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Check if we have any data after filtering
+  const hasData = data.section.length > 0 || data.rating.length > 0 || data.gender.length > 0 || data.state.length > 0;
+  
+  if (!hasData) {
+    return (
+      <Card className="border-0 shadow-lg">
+        <CardContent className="p-8 text-center">
+          <div className="text-gray-600 text-lg font-semibold">
+            No data found for the selected filters
+          </div>
+          <p className="text-gray-500 mt-2">
+            Try adjusting your filter criteria to see results
+          </p>
         </CardContent>
       </Card>
     );
@@ -186,11 +204,16 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
               <CardTitle className="text-3xl font-bold">USTA League Analytics</CardTitle>
               <p className="text-blue-100 mt-2 text-lg">
                 {hasActiveFilters 
-                  ? `Filtered data for selected criteria` 
+                  ? `Filtered data for selected criteria (${totalPlayers.toLocaleString()} players)` 
                   : 'Comprehensive league statistics and insights'
                 }
               </p>
             </div>
+            {isLoading && (
+              <div className="ml-auto">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              </div>
+            )}
           </div>
         </CardHeader>
       </Card>
@@ -420,6 +443,11 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
                     .map(([key, value]) => `${key}: ${value}`)
                     .join(', ')}
                 </p>
+                {isLoading && (
+                  <p className="text-xs text-blue-600 mt-1 italic">
+                    Refreshing data...
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
