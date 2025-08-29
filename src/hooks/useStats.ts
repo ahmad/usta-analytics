@@ -155,6 +155,7 @@ async function fetchStateStats(filters: FilterState): Promise<StateData> {
 }
 
 export function useStats(filters: FilterState) {
+  // For debugging, let's start with just the sections query
   const sectionsQuery = useQuery({
     queryKey: ['sections', filters],
     queryFn: () => fetchSections(filters),
@@ -164,7 +165,7 @@ export function useStats(filters: FilterState) {
     retry: 2,
   });
 
-  // Simplified - just return sections data for now
+  // Simplified return for debugging
   return {
     data: {
       sections: sectionsQuery.data?.sections || [],
