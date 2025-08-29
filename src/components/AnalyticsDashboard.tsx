@@ -342,8 +342,8 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1">
-        {/* Chart 1: Dynamic Chart based on filter selection - Only show when appropriate */}
-        {(!filters.section || (filters.section && filters.district)) && (
+        {/* Chart 1: Dynamic Chart based on filter selection - Hide when no areas data available */}
+        {data.chartData.length > 0 ? (
           <Card className="border-0 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -357,6 +357,20 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
               </div>
             </CardContent>
           </Card>
+        ) : (
+          // Show message when no chart data is available
+          filters.section && filters.district && (
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8 text-center">
+                <div className="text-gray-600 text-lg font-semibold">
+                  No areas data available for the selected section and district
+                </div>
+                <p className="text-gray-500 mt-2">
+                  Try selecting a different section or district combination
+                </p>
+              </CardContent>
+            </Card>
+          )
         )}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -409,8 +423,8 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
 
       {/* Data Summary Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Dynamic Top Table - Only show when appropriate */}
-        {(!filters.section || (filters.section && filters.district)) && (
+        {/* Dynamic Top Table - Hide when no chart data available */}
+        {data.chartData.length > 0 && (
           <Card className="border-0 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
