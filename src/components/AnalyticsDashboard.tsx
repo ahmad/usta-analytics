@@ -342,22 +342,24 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1">
-        {/* Chart 1: Dynamic Chart based on filter selection */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
-              <span>{getChartTitle()}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <Bar data={chartData} options={chartOptions} />
-            </div>
-          </CardContent>
-        </Card>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Chart 1: Dynamic Chart based on filter selection - Only show when appropriate */}
+        {(!filters.section || (filters.section && filters.district)) && (
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <BarChart3 className="w-5 h-5 text-blue-600" />
+                <span>{getChartTitle()}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <Bar data={chartData} options={chartOptions} />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* Chart 2: Rating Distribution by Gender */}
         <Card className="border-0 shadow-lg">
@@ -407,59 +409,61 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
 
       {/* Data Summary Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Dynamic Top Table */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Award className="w-5 h-5 text-blue-600" />
-              <span>{getTopItemsTitle()}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {data.chartData
-                .slice(0, 8)
-                .map((item, index) => {
-                  let name: string;
-                  let count: number;
-                  
-                  if (data.chartType === 'sections') {
-                    name = item.section_name || 'Unknown';
-                    count = parseInt(item.section_count);
-                  } else if (data.chartType === 'districts') {
-                    name = item.district_name || 'Unknown';
-                    count = parseInt(item.count);
-                  } else {
-                    name = item.area_name || 'Unknown';
-                    count = parseInt(item.count);
-                  }
-                  
-                  return (
-                    <div key={item.section_id || item.district_id || item.area_id || index} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                          index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                          index === 1 ? 'bg-gray-100 text-gray-800' :
-                          index === 2 ? 'bg-orange-100 text-orange-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
-                          {index + 1}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">
-                            {data.chartType === 'sections' ? name.replace('USTA/', '') : name}
+        {/* Dynamic Top Table - Only show when appropriate */}
+        {(!filters.section || (filters.section && filters.district)) && (
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Award className="w-5 h-5 text-blue-600" />
+                <span>{getTopItemsTitle()}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {data.chartData
+                  .slice(0, 8)
+                  .map((item, index) => {
+                    let name: string;
+                    let count: number;
+                    
+                    if (data.chartType === 'sections') {
+                      name = item.section_name || 'Unknown';
+                      count = parseInt(item.section_count);
+                    } else if (data.chartType === 'districts') {
+                      name = item.district_name || 'Unknown';
+                      count = parseInt(item.count);
+                    } else {
+                      name = item.area_name || 'Unknown';
+                      count = parseInt(item.count);
+                    }
+                    
+                    return (
+                      <div key={item.section_id || item.district_id || item.area_id || index} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                            index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                            index === 1 ? 'bg-gray-100 text-gray-800' :
+                            index === 2 ? 'bg-orange-100 text-orange-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">
+                              {data.chartType === 'sections' ? name.replace('USTA/', '') : name}
+                            </div>
                           </div>
                         </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900">{count.toLocaleString()}</div>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">{count.toLocaleString()}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </CardContent>
-        </Card>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Rating Distribution Table */}
         <Card className="border-0 shadow-lg">
