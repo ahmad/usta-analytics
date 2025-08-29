@@ -163,16 +163,15 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
     ],
   };
 
-  // Chart 4: Top States Distribution (Pie Chart - Top 10)
-  const topStates = data.state
-    .sort((a, b) => parseInt(b.state_count) - parseInt(a.state_count))
-    .slice(0, 10);
+  // Chart 4: All States Distribution (Bar Chart)
+  const allStates = data.state
+    .sort((a, b) => parseInt(b.state_count) - parseInt(a.state_count));
   
   const statesChartData = {
-    labels: topStates.map(s => s.state),
+    labels: allStates.map(s => s.state),
     datasets: [
       {
-        data: topStates.map(s => parseInt(s.state_count)),
+        data: allStates.map(s => parseInt(s.state_count)),
         backgroundColor: [
           'rgba(59, 130, 246, 0.8)',
           'rgba(16, 185, 129, 0.8)',
@@ -205,11 +204,11 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
+          plugins: {
+        legend: {
+          display: false,
+        },
       },
-    },
   };
 
   // Get chart title based on current chart type
@@ -373,49 +372,52 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
           )
         )}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8">
 
-        {/* Chart 2: Rating Distribution by Gender */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Star className="w-5 h-5 text-orange-600" />
-              <span>Rating Distribution by Gender</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <Line data={ratingChartData} options={chartOptions} />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Chart 2 & 3: Rating and Gender Distribution - Side by side on larger screens */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Chart 2: Rating Distribution by Gender */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Star className="w-5 h-5 text-orange-600" />
+                <span>Rating Distribution by Gender</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <Line data={ratingChartData} options={chartOptions} />
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Chart 3: Gender Distribution */}
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Users className="w-5 h-5 text-purple-600" />
-              <span>Gender Distribution</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-80">
-              <Doughnut data={genderChartData} options={chartOptions} />
-            </div>
-          </CardContent>
-        </Card>
+          {/* Chart 3: Gender Distribution */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="w-5 h-5 text-purple-600" />
+                <span>Gender Distribution</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <Doughnut data={genderChartData} options={chartOptions} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Chart 4: Top States Distribution */}
+        {/* Chart 4: All States Distribution - Full width */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <MapPin className="w-5 h-5 text-green-600" />
-              <span>Top 10 States by Players</span>
+              <span>All States by Players</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-80">
-              <Pie data={statesChartData} options={chartOptions} />
+              <Bar data={statesChartData} options={chartOptions} />
             </div>
           </CardContent>
         </Card>
@@ -452,7 +454,7 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
                     }
                     
                     return (
-                      <div key={item.section_id || item.district_id || item.area_id || index} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                         <div className="flex items-center space-x-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                             index === 0 ? 'bg-yellow-100 text-yellow-800' :
