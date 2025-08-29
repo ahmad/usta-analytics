@@ -341,7 +341,7 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1">
         {/* Chart 1: Dynamic Chart based on filter selection */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
@@ -356,6 +356,8 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
             </div>
           </CardContent>
         </Card>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* Chart 2: Rating Distribution by Gender */}
         <Card className="border-0 shadow-lg">
