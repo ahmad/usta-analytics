@@ -29,18 +29,16 @@ export async function GET(request: Request) {
     }
 
     const getDistrictsCount = `
-        SELECT p.*, d.district_name 
-        FROM (
-            SELECT 
-                ps.district_id, 
-                COUNT(ps.district_id) as count
-            FROM players p
-            LEFT JOIN player_sections ps ON ps.player_id = p.id
-            WHERE ps.section_id = $1 ${playerWhereClause}
-            GROUP BY ps.district_id
-        ) as p
-        LEFT JOIN districts d USING(district_id)
-        ORDER BY p.count DESC`;
+        SELECT 
+            ps.district_id, 
+            COUNT(DISTINCT ps.player_id) as count,
+            d.district_name 
+        FROM player_sections ps
+        LEFT JOIN districts d ON ps.district_id = d.district_id
+        LEFT JOIN players p ON p.id = ps.player_id
+        WHERE ps.section_id = $1 ${playerWhereClause}
+        GROUP BY ps.district_id, d.district_name
+        ORDER BY count DESC`;
 
     const client = await pool.connect();
     

@@ -213,8 +213,17 @@ export function useStats(filters: FilterState) {
   });
 
   // Determine which chart data to show based on filters
-  let chartData: any[] = [];
-  let chartType = 'sections';
+  let chartData: Array<{
+    section_id?: string;
+    section_name?: string;
+    section_count?: string;
+    district_id?: string;
+    district_name?: string;
+    count?: string;
+    area_id?: string;
+    area_name?: string;
+  }> = [];
+  let chartType: 'sections' | 'districts' | 'areas' = 'sections';
 
   if (filters.section !== '' && filters.district !== '') {
     // Show areas chart when both section and district are selected

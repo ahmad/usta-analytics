@@ -11,11 +11,8 @@ export async function GET(request: Request) {
 
     // Build WHERE clauses based on filters
     let sectionWhereClause = '';
-    
-    // Parameters for section/district/area queries
     const sectionParams: (string | number)[] = [];
     let sectionParamIndex = 1;
-    
 
     if (section) {
         sectionWhereClause += ` AND ps.section_id = $${sectionParamIndex}`;
@@ -47,15 +44,16 @@ export async function GET(request: Request) {
         sectionParamIndex++;
     }
 
-    const getStateCount = `SELECT 
-        state,
-        COUNT(state) as state_count
-    FROM players p
-    left join player_sections ps on ps.player_id  = p.id
-    WHERE country = 'US' ${sectionWhereClause}
-    GROUP BY state
-    HAVING COUNT(state) > 5
-    ORDER BY state_count DESC`;
+    const getStateCount = `
+        SELECT 
+            p.state,
+            COUNT(DISTINCT p.id) as state_count
+        FROM players p
+        LEFT JOIN player_sections ps ON ps.player_id = p.id
+        WHERE p.country = 'US' ${sectionWhereClause}
+        GROUP BY p.state
+        HAVING COUNT(DISTINCT p.id) > 5
+        ORDER BY state_count DESC`;
 
     const client = await pool.connect();
     try {

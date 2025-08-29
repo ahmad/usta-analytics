@@ -10,93 +10,90 @@ export async function GET(request: Request) {
     const rating = searchParams.get('rating');
 
     // Build WHERE clauses based on filters
-    let sectionWhereClause = '';
-    
-    // Parameters for section/district/area queries
-    const sectionParams: (string | number)[] = [];
-    let sectionParamIndex = 1;
-    
+    let whereClause = '';
+    const params: (string | number)[] = [];
+    let paramIndex = 1;
 
     if (section) {
-        sectionWhereClause += ` AND ps.section_id = $${sectionParamIndex}`;
-        sectionParams.push(section);
-        sectionParamIndex++;
+        whereClause += ` AND ps.section_id = $${paramIndex}`;
+        params.push(section);
+        paramIndex++;
     }
 
     if (district) {
-        sectionWhereClause += ` AND ps.district_id = $${sectionParamIndex}`;
-        sectionParams.push(district);
-        sectionParamIndex++;
+        whereClause += ` AND ps.district_id = $${paramIndex}`;
+        params.push(district);
+        paramIndex++;
     }
 
     if (area) {
-        sectionWhereClause += ` AND ps.area_id = $${sectionParamIndex}`;
-        sectionParams.push(area);
-        sectionParamIndex++;
+        whereClause += ` AND ps.area_id = $${paramIndex}`;
+        params.push(area);
+        paramIndex++;
     }
 
     if (gender) {
-        sectionWhereClause += ` AND p.gender = $${sectionParamIndex}`;
-        sectionParams.push(gender);
-        sectionParamIndex++;
+        whereClause += ` AND p.gender = $${paramIndex}`;
+        params.push(gender);
+        paramIndex++;
     }
 
     if (rating) {
-        sectionWhereClause += ` AND p.rating = $${sectionParamIndex}`;
-        sectionParams.push(rating);
-        sectionParamIndex++;
+        whereClause += ` AND p.rating = $${paramIndex}`;
+        params.push(rating);
+        paramIndex++;
     }
 
-    const getSectionsCount = `SELECT 
-        DISTINCT
-        ps.section_id, 
-        COUNT(ps.section_id) as section_count,
-        s.section_name
-    FROM player_sections ps
-    LEFT JOIN sections s ON ps.section_id = s.section_id
-    left join players p on p.id = ps.player_id
-    WHERE 1=1 ${sectionWhereClause}
-    GROUP BY ps.section_id, s.section_name
-    ORDER BY section_count DESC`;
+    const getSectionsCount = `
+        SELECT 
+            DISTINCT
+            ps.section_id, 
+            COUNT(DISTINCT ps.player_id) as section_count,
+            s.section_name
+        FROM player_sections ps
+        LEFT JOIN sections s ON ps.section_id = s.section_id
+        LEFT JOIN players p ON p.id = ps.player_id
+        WHERE 1=1 ${whereClause}
+        GROUP BY ps.section_id, s.section_name
+        ORDER BY section_count DESC`;
 
-    // For the rating query, we need to handle the gender filter separately since it's already in the subquery
-    const ratingGenderFilter = gender ? ` AND gender = '${gender}'` : '';
-    
-    const getGenderStatPerRating = `SELECT p1.rating,
-        (SELECT COUNT(*) FROM players p2 WHERE p2.rating = p1.rating AND gender = 'Male' ${ratingGenderFilter}) as male_rating,
-        (SELECT COUNT(*) FROM players p2 WHERE p2.rating = p1.rating AND gender = 'Female' ${ratingGenderFilter}) as female_rating
-    FROM (
-        SELECT DISTINCT rating
+    const getGenderStatPerRating = `
+        SELECT 
+            p.rating,
+            COUNT(CASE WHEN p.gender = 'Male' THEN 1 END) as male_rating,
+            COUNT(CASE WHEN p.gender = 'Female' THEN 1 END) as female_rating
         FROM players p
-        left join player_sections ps on ps.player_id  = p.id
-        WHERE 1=1 ${sectionWhereClause}
-    ) as p1
-    WHERE p1.rating BETWEEN 2.5 AND 5.5
-    ORDER BY rating ASC`;
+        LEFT JOIN player_sections ps ON ps.player_id = p.id
+        WHERE p.rating BETWEEN 2.5 AND 5.5 ${whereClause}
+        GROUP BY p.rating
+        ORDER BY p.rating ASC`;
 
-    const getGenderCount = `SELECT gender, COUNT(gender) as gender_count 
-    FROM players p
-    left join player_sections ps on ps.player_id  = p.id
-    WHERE 1=1 ${sectionWhereClause}
-    GROUP BY gender`;
+    const getGenderCount = `
+        SELECT p.gender, COUNT(DISTINCT p.id) as gender_count 
+        FROM players p
+        LEFT JOIN player_sections ps ON ps.player_id = p.id
+        WHERE 1=1 ${whereClause}
+        GROUP BY p.gender
+        ORDER BY gender_count DESC`;
 
-    const getStateCount = `SELECT 
-        state,
-        COUNT(state) as state_count
-    FROM players p
-    left join player_sections ps on ps.player_id  = p.id
-    WHERE country = 'US' ${sectionWhereClause}
-    GROUP BY state
-    HAVING COUNT(state) > 5
-    ORDER BY state_count DESC`;
+    const getStateCount = `
+        SELECT 
+            p.state,
+            COUNT(DISTINCT p.id) as state_count
+        FROM players p
+        LEFT JOIN player_sections ps ON ps.player_id = p.id
+        WHERE p.country = 'US' ${whereClause}
+        GROUP BY p.state
+        HAVING COUNT(DISTINCT p.id) > 5
+        ORDER BY state_count DESC`;
 
     const client = await pool.connect();
     try {
         const [sectionsCount, genderStatPerRating, genderCount, stateCount] = await Promise.all([   
-            client.query(getSectionsCount, sectionParams),
-            client.query(getGenderStatPerRating, sectionParams),
-            client.query(getGenderCount, sectionParams),
-            client.query(getStateCount, sectionParams)
+            client.query(getSectionsCount, params),
+            client.query(getGenderStatPerRating, params),
+            client.query(getGenderCount, params),
+            client.query(getStateCount, params)
         ]);
 
         return NextResponse.json({ 

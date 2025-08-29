@@ -95,13 +95,13 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
     
     if (chartType === 'sections') {
       labels = chartData.map(s => s.section_name?.replace('USTA/', '') || 'Unknown');
-      dataValues = chartData.map(s => parseInt(s.section_count));
+      dataValues = chartData.map(s => parseInt(s.section_count || '0'));
     } else if (chartType === 'districts') {
       labels = chartData.map(d => d.district_name || 'Unknown');
-      dataValues = chartData.map(d => parseInt(d.count));
+      dataValues = chartData.map(d => parseInt(d.count || '0'));
     } else if (chartType === 'areas') {
       labels = chartData.map(a => a.area_name || 'Unknown');
-      dataValues = chartData.map(a => parseInt(a.count));
+      dataValues = chartData.map(a => parseInt(a.count || '0'));
     }
     
     return {
@@ -442,13 +442,13 @@ export default function AnalyticsDashboard({ filters }: AnalyticsDashboardProps)
                     
                     if (data.chartType === 'sections') {
                       name = item.section_name || 'Unknown';
-                      count = parseInt(item.section_count);
+                      count = parseInt(item.section_count || '0');
                     } else if (data.chartType === 'districts') {
                       name = item.district_name || 'Unknown';
-                      count = parseInt(item.count);
+                      count = parseInt(item.count || '0');
                     } else {
                       name = item.area_name || 'Unknown';
-                      count = parseInt(item.count);
+                      count = parseInt(item.count || '0');
                     }
                     
                     return (

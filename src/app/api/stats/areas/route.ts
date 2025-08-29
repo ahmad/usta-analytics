@@ -30,18 +30,16 @@ export async function GET(request: Request) {
     }
 
     const getAreasCount = `
-        SELECT p.*, a.area_name 
-        FROM (
-            SELECT 
-                ps.area_id, 
-                COUNT(ps.area_id) as count
-            FROM players p
-            LEFT JOIN player_sections ps ON ps.player_id = p.id
-            WHERE ps.section_id = $1 AND ps.district_id = $2 ${playerWhereClause}
-            GROUP BY ps.area_id
-        ) as p
-        LEFT JOIN areas a USING(area_id)
-        ORDER BY p.count DESC`;
+        SELECT 
+            ps.area_id, 
+            COUNT(DISTINCT ps.player_id) as count,
+            a.area_name 
+        FROM player_sections ps
+        LEFT JOIN areas a ON ps.area_id = a.area_id
+        LEFT JOIN players p ON p.id = ps.player_id
+        WHERE ps.section_id = $1 AND ps.district_id = $2 ${playerWhereClause}
+        GROUP BY ps.area_id, a.area_name
+        ORDER BY count DESC`;
 
     const client = await pool.connect();
     
