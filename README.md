@@ -10,6 +10,20 @@ A comprehensive analytics dashboard for USTA tennis leagues across the United St
 - **Responsive Design**: Modern UI that works on all devices
 - **Real-time Updates**: Data refreshes automatically when filters change
 
+## Screenshots
+
+### Filter Options
+![Filter Options](assets/filters.png)
+*Comprehensive filtering interface allowing users to narrow down data by section, district, area, gender, and rating*
+
+### Rating Distribution by Gender
+![Rating Distribution by Gender](assets/rating_dist_gender.png)
+*Interactive chart showing the distribution of player ratings across different genders*
+
+### Section Player Count
+![Section Player Count](assets/sections.png)
+*Visualization displaying the number of players in each USTA section*
+
 ## Filtering Capabilities
 
 The dashboard supports comprehensive filtering:
